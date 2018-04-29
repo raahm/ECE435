@@ -1,6 +1,6 @@
-psk = comm.PSKModulator(16);
-pskDemod = comm.PSKDemodulator(16);
-channel = comm.AWGNChannel('BitsPerSymbol', 4);
+fsk = comm.FSKModulator(16);
+fskDemod = comm.FSKDemodulator(16);
+channel = comm.AWGNChannel('BitsPerSymbol',4);
 errorRate = comm.ErrorRate;
 ebnoVec = [-6 -3 0 3 6 8 10 12 13 14 15 16 17 18 19];
 ber = zeros(size(ebnoVec));
@@ -15,14 +15,14 @@ for k = 1:length(ebnoVec)
     channel.EbNo = ebnoVec(k);
     
     while errVec(2) < 200 && errVec(3) < 1e7
-        %Generate a 1000-symbol rame
+        %Generate a 1000-symbol frame
         data = randi([0 1], 4000, 1);
         %modulate the binary data
-        signal = psk(data);
+        signal = fsk(data);
         %pass the modulated data through the AWGN channel
         receivedSignal = channel(signal);
         %demodulate the received signal
-        receivedData = pskDemod(receivedSignal);
+        receivedData = fskDemod(receivedSignal);
         %statistics
         errVec = errorRate(data, receivedData);
     end
@@ -31,7 +31,7 @@ for k = 1:length(ebnoVec)
     ber(k) = errVec(1);
 end
 
-berTheory = berawgn(ebnoVec, 'psk', 16, 'nondiff');
+berTheory = berawgn(ebnoVec, 'fsk', 16, 'nondiff');
 figure
 semilogy(ebnoVec, [ber;berTheory])
 xlabel('Eb/No (dB)')
